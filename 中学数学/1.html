@@ -1,181 +1,171 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>正六角形の面積問題（③の解説）</title>
-<style>
-body {
-  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  line-height: 1.8;
-  background: #f7f7f7;
-  padding: 20px;
-}
-.container {
-  max-width: 800px;
-  margin: auto;
-  background: white;
-  padding: 25px;
-  border-radius: 8px;
-}
-h1 {
-  font-size: 22px;
-  border-bottom: 2px solid #444;
-}
-.step {
-  display: none;
-  margin-top: 20px;
-}
-.step.active {
-  display: block;
-}
-.box {
-  background: #eef;
-  padding: 15px;
-  border-radius: 6px;
-  margin: 15px 0;
-}
-button {
-  padding: 10px 18px;
-  font-size: 15px;
-  margin-top: 20px;
-}
-.math {
-  font-family: "Times New Roman", serif;
-  background: #fafafa;
-  padding: 10px;
-  border-left: 4px solid #888;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>③ 点Mが辺CD上にあるときの解法</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .math-block {
+            overflow-x: auto;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            border: 1px solid #e5e7eb;
+        }
+        h2 {
+            border-left: 5px solid #3b82f6;
+            padding-left: 1rem;
+        }
+    </style>
 </head>
+<body class="p-4 md:p-8">
 
-<body>
-<div class="container">
+    <main class="max-w-3xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-6">
+            <h1 class="text-2xl font-bold">③ 点\(M\)が辺\(CD\)上にあるとき \(\triangle AMN = 8\sqrt{3}\) となる時刻</h1>
+        </header>
 
-<h1>（３）③　面積が \(8\sqrt3\) になる時刻を求める</h1>
+        <div class="p-6 space-y-8">
 
-<div class="step active">
-<h2>① 状況の整理</h2>
-<div class="box">
-・正六角形の一辺は 4 cm<br>
-・対角線 AD の長さは 8 cm<br>
-・点 P は A から D へ毎秒 1 cm で動く
-</div>
+            <!-- Step 1 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">1. 状況の整理</h2>
+                <p class="mb-2 leading-relaxed">
+                    「点\(M\)が辺\(CD\)上にある」というのは、点\(P\)がある程度下まで進み、水平線 \(\ell\) が <strong class="text-blue-600">正六角形の下の斜め辺 \(CD\) を切っている</strong> 状況です。
+                </p>
+                <p class="leading-relaxed">
+                    このとき、左右対称の関係から、反対側の点\(N\)も辺\(DE\)上にあります。
+                </p>
+            </section>
 
-<p>
-時刻を <strong>t 秒後</strong> とすると、
-</p>
+            <!-- Step 2 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">2. 面積の式を立てる</h2>
+                <p class="mb-2">まず、三角形の面積を「底辺 \(\times\) 高さ」で考えます。</p>
+                <div class="math-block text-center text-lg">
+                    $$ \triangle AMN = \frac{1}{2} \times MN \times AP $$
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>
+                            <span class="font-bold text-blue-800">高さについて：</span><br>
+                            点\(A\)から直線 \(\ell\) までの距離なので、
+                            $$ AP = t $$
+                            これは確定です。
+                        </li>
+                        <li>
+                            <span class="font-bold text-blue-800">底辺 \(MN\) について：</span><br>
+                            ここを \(t\) で表すのがポイントです。図形の相似（30°・60°・90°の直角三角形）を使います。
+                        </li>
+                    </ul>
+                </div>
+            </section>
 
-<div class="math">
-AP = t<br>
-PD = 8 − t
-</div>
+            <!-- Step 3 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">3. 底辺 \(MN\) を \(t\) で表す</h2>
+                <p class="mb-4">
+                    点\(M\)が辺\(CD\)上にあるとき、線分\(MN\)の長さは、中心線\(AD\)から左右への広がりの合計です。
+                    右下の小さな直角三角形 \(\triangle MDP\) に注目します。
+                </p>
 
-<p>
-今は <strong>M が辺 CD 上にあるとき</strong> を考える。
-</p>
-</div>
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded border">
+                        <h3 class="font-bold text-sm text-gray-500 mb-2">縦の長さ (\(DP\))</h3>
+                        <p>点\(P\)は \(A\) から \(t\) 進んでいるので、残りの長さは：</p>
+                        <div class="text-center font-bold py-2">\( DP = 8 - t \)</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded border">
+                        <h3 class="font-bold text-sm text-gray-500 mb-2">横の長さ (\(PM\))</h3>
+                        <p>直角三角形 \(\triangle MDP\) は \(1 : 2 : \sqrt{3}\) なので：</p>
+                        <div class="text-center font-bold py-2">\( PM = \sqrt{3} \times (8 - t) \)</div>
+                    </div>
+                </div>
 
-<div class="step">
-<h2>② 底辺 MN を考える</h2>
+                <p>底辺 \(MN\) 全体の長さは \(PM\) の2倍なので、次の式になります。</p>
+                <div class="math-block text-center text-xl font-bold text-blue-700">
+                    $$ MN = 2\sqrt{3}(8 - t) $$
+                </div>
+            </section>
 
-<p>
-三角形 AMN の面積は
-</p>
+            <!-- Step 4 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">4. 方程式を立てて解く</h2>
+                <p>これまでの式を面積の公式に代入します。</p>
+                <div class="math-block">
+                    $$
+                    \begin{aligned}
+                    \triangle AMN &= \frac{1}{2} \times MN \times t \\
+                    &= \frac{1}{2} \times 2\sqrt{3}(8 - t) \times t \\
+                    &= \sqrt{3}t(8 - t)
+                    \end{aligned}
+                    $$
+                </div>
+                <p>問題の条件より、この面積が \(8\sqrt{3}\) になればよいので：</p>
+                <div class="math-block">
+                    $$ \sqrt{3}t(8 - t) = 8\sqrt{3} $$
+                </div>
+                <p>両辺を \(\sqrt{3}\) で割って整理します。</p>
+                <div class="math-block">
+                    $$
+                    \begin{aligned}
+                    t(8 - t) &= 8 \\
+                    8t - t^2 &= 8 \\
+                    t^2 - 8t + 8 &= 0
+                    \end{aligned}
+                    $$
+                </div>
+                <p>解の公式 \(\displaystyle t = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}\) を使って解きます。</p>
+                <div class="math-block text-center">
+                    $$ t = \frac{8 \pm \sqrt{64 - 32}}{2} = \frac{8 \pm \sqrt{32}}{2} = 4 \pm 2\sqrt{2} $$
+                </div>
+            </section>
 
-<div class="math">
-面積 = 1/2 × 底辺 MN × 高さ
-</div>
+            <!-- Step 5 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">5. 解の吟味と答え</h2>
+                <p class="mb-4">出てきた2つの解のうち、どちらが条件に合うかを確認します。<br>条件は「点\(M\)が辺\(CD\)上にある」ことでした。</p>
+                
+                <div class="space-y-3">
+                    <div class="flex items-start p-3 bg-red-50 rounded border border-red-100 text-gray-600">
+                        <span class="text-red-500 font-bold mr-2">✕</span>
+                        <div>
+                            \( t = 4 - 2\sqrt{2} \approx 1.17 \)<br>
+                            <span class="text-sm">これは \(t < 2\) なので、まだ点\(M\)が上の辺\(AB\)にある時です。</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-green-50 rounded border border-green-200 text-gray-800 shadow-sm">
+                        <span class="text-green-600 font-bold mr-2">◎</span>
+                        <div>
+                            \( t = 4 + 2\sqrt{2} \approx 6.83 \)<br>
+                            <span class="text-sm">これは \(6 \leqq t \leqq 8\) の範囲に入っており、点\(M\)が下の辺\(CD\)にある条件に適します。</span>
+                        </div>
+                    </div>
+                </div>
 
-<p>
-高さは A から P までの距離なので
-</p>
+                <div class="mt-8 text-center">
+                    <p class="text-gray-500 text-sm mb-2">答え</p>
+                    <div class="inline-block border-2 border-blue-600 text-blue-700 font-bold text-3xl px-8 py-4 rounded-lg bg-white shadow-md">
+                        \( 4 + 2\sqrt{2} \) <span class="text-lg font-normal text-gray-600">秒後</span>
+                    </div>
+                </div>
+            </section>
 
-<div class="math">
-高さ = AP = t
-</div>
-
-<p>
-次に底辺 MN を求める。
-</p>
-
-<div class="box">
-CD は 30° 傾いた辺なので、<br>
-D から上へ (8 − t) cm 進むと、<br>
-横のずれは (8 − t) × √3 になる
-</div>
-
-<p>
-左右対称なので
-</p>
-
-<div class="math">
-MN = 2√3(8 − t)
-</div>
-</div>
-
-<div class="step">
-<h2>③ 面積の式を立てる</h2>
-
-<div class="math">
-面積 = 1/2 × 2√3(8 − t) × t
-</div>
-
-<div class="math">
-= √3 × t(8 − t)
-</div>
-
-<p>
-これが問題の条件より
-</p>
-
-<div class="math">
-√3 × t(8 − t) = 8√3
-</div>
-</div>
-
-<div class="step">
-<h2>④ 方程式を解く</h2>
-
-<div class="math">
-t(8 − t) = 8
-</div>
-
-<div class="math">
-8t − t² = 8<br>
-t² − 8t + 8 = 0
-</div>
-
-<div class="math">
-t = 4 ± 2√2
-</div>
-
-<div class="box">
-M が CD 上にあるのは、<br>
-P が下の方にあるときなので
-</div>
-
-<div class="math">
-t = 4 + 2√2
-</div>
-
-<p><strong>答え：4 + 2√2 秒後</strong></p>
-</div>
-
-<button onclick="nextStep()">次へ</button>
-
-</div>
-
-<script>
-let step = 0;
-const steps = document.querySelectorAll(".step");
-
-function nextStep() {
-  steps[step].classList.remove("active");
-  step++;
-  if (step >= steps.length) step = steps.length - 1;
-  steps[step].classList.add("active");
-}
-</script>
-
+        </div>
+    </main>
+    <footer class="text-center text-gray-400 text-sm py-8">
+        解説作成: Gemini
+    </footer>
 </body>
 </html>
