@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>正六角形の面積問題（③の解説）</title>
+<style>
+body {
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  line-height: 1.8;
+  background: #f7f7f7;
+  padding: 20px;
+}
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+}
+h1 {
+  font-size: 22px;
+  border-bottom: 2px solid #444;
+}
+.step {
+  display: none;
+  margin-top: 20px;
+}
+.step.active {
+  display: block;
+}
+.box {
+  background: #eef;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+button {
+  padding: 10px 18px;
+  font-size: 15px;
+  margin-top: 20px;
+}
+.math {
+  font-family: "Times New Roman", serif;
+  background: #fafafa;
+  padding: 10px;
+  border-left: 4px solid #888;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>（３）③　面積が \(8\sqrt3\) になる時刻を求める</h1>
+
+<div class="step active">
+<h2>① 状況の整理</h2>
+<div class="box">
+・正六角形の一辺は 4 cm<br>
+・対角線 AD の長さは 8 cm<br>
+・点 P は A から D へ毎秒 1 cm で動く
+</div>
+
+<p>
+時刻を <strong>t 秒後</strong> とすると、
+</p>
+
+<div class="math">
+AP = t<br>
+PD = 8 − t
+</div>
+
+<p>
+今は <strong>M が辺 CD 上にあるとき</strong> を考える。
+</p>
+</div>
+
+<div class="step">
+<h2>② 底辺 MN を考える</h2>
+
+<p>
+三角形 AMN の面積は
+</p>
+
+<div class="math">
+面積 = 1/2 × 底辺 MN × 高さ
+</div>
+
+<p>
+高さは A から P までの距離なので
+</p>
+
+<div class="math">
+高さ = AP = t
+</div>
+
+<p>
+次に底辺 MN を求める。
+</p>
+
+<div class="box">
+CD は 30° 傾いた辺なので、<br>
+D から上へ (8 − t) cm 進むと、<br>
+横のずれは (8 − t) × √3 になる
+</div>
+
+<p>
+左右対称なので
+</p>
+
+<div class="math">
+MN = 2√3(8 − t)
+</div>
+</div>
+
+<div class="step">
+<h2>③ 面積の式を立てる</h2>
+
+<div class="math">
+面積 = 1/2 × 2√3(8 − t) × t
+</div>
+
+<div class="math">
+= √3 × t(8 − t)
+</div>
+
+<p>
+これが問題の条件より
+</p>
+
+<div class="math">
+√3 × t(8 − t) = 8√3
+</div>
+</div>
+
+<div class="step">
+<h2>④ 方程式を解く</h2>
+
+<div class="math">
+t(8 − t) = 8
+</div>
+
+<div class="math">
+8t − t² = 8<br>
+t² − 8t + 8 = 0
+</div>
+
+<div class="math">
+t = 4 ± 2√2
+</div>
+
+<div class="box">
+M が CD 上にあるのは、<br>
+P が下の方にあるときなので
+</div>
+
+<div class="math">
+t = 4 + 2√2
+</div>
+
+<p><strong>答え：4 + 2√2 秒後</strong></p>
+</div>
+
+<button onclick="nextStep()">次へ</button>
+
+</div>
+
+<script>
+let step = 0;
+const steps = document.querySelectorAll(".step");
+
+function nextStep() {
+  steps[step].classList.remove("active");
+  step++;
+  if (step >= steps.length) step = steps.length - 1;
+  steps[step].classList.add("active");
+}
+</script>
+
+</body>
+</html>
