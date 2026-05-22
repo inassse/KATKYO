@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>縦波の横波表示シミュレーション</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        canvas {
+            touch-action: none; /* スマホでのスクロール干渉を防ぐ */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-8">
+
+<div class="max-w-5xl mx-auto flex flex-col gap-6">
+    
+    <!-- ヘッダー -->
+    <header class="bg-white rounded-xl shadow-sm p-6 border-t-4 border-blue-500">
+        <h1 class="text-2xl md:text-3xl font-bold mb-2">縦波の横波表示（問題解説）</h1>
+        <p class="text-slate-600">
+            問題の図と同じ波形をシミュレーションしています。下のボタンで解説を切り替えたり、波を動かして実際の媒質（質点）の動きを確認してみましょう。
+        </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- メインキャンバスエリア (左側 2カラム分) -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-4 relative flex flex-col">
+            
+            <!-- キャンバス -->
+            <div class="w-full bg-slate-50 border border-slate-200 rounded-lg overflow-hidden relative mb-4" id="canvasContainer">
+                <canvas id="waveCanvas" class="w-full h-[400px]"></canvas>
+                
+                <!-- 凡例 -->
+                <div class="absolute top-2 right-2 bg-white/80 backdrop-blur text-xs p-2 rounded border border-slate-200 shadow-sm pointer-events-none">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="w-4 h-[2px] bg-blue-500"></div> 横波表示のグラフ
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-slate-500"></div> 実際の媒質 (縦波)
+                    </div>
+                </div>
+            </div>
+
+            <!-- コントロールボタン -->
+            <div class="flex flex-wrap items-center gap-3 mt-auto">
+                <button id="btnPlay" class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium transition flex items-center gap-2 shadow-sm">
+                    <svg id="iconPlay" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                    <svg id="iconPause" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    <span id="textPlay">波を動かす</span>
+                </button>
+                <div class="h-8 w-px bg-slate-300 mx-1"></div>
+                <button data-mode="normal" class="tab-btn px-4 py-2 rounded-lg font-medium bg-blue-100 text-blue-800 border border-blue-500 transition">
+                    基本の動き
+                </button>
+                <button data-mode="a" class="tab-btn px-4 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-100 transition">
+                    問題 (a) の解説
+                </button>
+                <button data-mode="b" class="tab-btn px-4 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-100 transition">
+                    問題 (b) の解説
+                </button>
+            </div>
+        </div>
+
+        <!-- テキスト解説エリア (右側 1カラム分) -->
+        <div class="bg-white rounded-xl shadow-sm p-6 h-full border border-slate-100">
+            <!-- 基本解説 -->
+            <div id="text-normal" class="tab-content">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="bg-blue-100 text-blue-600 p-1.5 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                    縦波の横波表示とは？
+                </h3>
+                <p class="mb-4 text-slate-700 leading-relaxed">
+                    音波などの「縦波」は、媒質（波を伝える物質）が波の進む方向と同じ方向に振動します。そのため、そのまま図に描くと「疎密」があるだけで波の形が見えにくくなります。
+                </p>
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
+                    <p class="font-bold text-slate-800 mb-2">【変換のルール】</p>
+                    <ul class="space-y-2 text-sm text-slate-700">
+                        <li class="flex gap-2">
+                            <span class="text-blue-500 font-bold">●</span>
+                            <span>媒質が<strong>右</strong>にずれる → グラフを<strong>上</strong> (y > 0) に描く</span>
+                        </li>
+                        <li class="flex gap-2">
+                            <span class="text-red-500 font-bold">●</span>
+                            <span>媒質が<strong>左</strong>にずれる → グラフを<strong>下</strong> (y < 0) に描く</span>
+                        </li>
+                    </ul>
+                </div>
+                <p class="text-sm text-slate-600 font-medium">
+                    左の「波を動かす」ボタンを押して、上のグラフ（横波表示）と下の点（実際の媒質）の動きが連動していることを確認してください。
+                </p>
+            </div>
+
+            <!-- 問題(a)の解説 -->
+            <div id="text-a" class="tab-content hidden">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 border-b-2 border-slate-200 pb-2">
+                    問題 (a) の解説
+                </h3>
+                <p class="font-bold text-lg text-indigo-700 mb-4 bg-indigo-50 inline-block px-3 py-1 rounded">正解: d</p>
+                
+                <p class="text-slate-700 mb-4 leading-relaxed">
+                    「振動の中心からの変位が左向き」ということは、実際の媒質が元の位置より左にある状態を指します。
+                </p>
+                <p class="text-slate-700 mb-4 leading-relaxed">
+                    横波表示のルールを思い出すと、<strong>変位が左向き ＝ グラフのy座標がマイナス (y < 0)</strong> となります。
+                </p>
+                <div class="bg-blue-50 p-3 rounded text-sm text-slate-700 border border-blue-100">
+                    左の図を見てください。青色でハイライトされた <strong>y < 0 の領域（c と e の間）</strong> にある点は <strong>d</strong> です。下の媒質の点を見ると、d の点が元の位置（点線）より明確に左へズレているのがわかります。
+                </div>
+            </div>
+
+            <!-- 問題(b)の解説 -->
+            <div id="text-b" class="tab-content hidden">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 border-b-2 border-slate-200 pb-2">
+                    問題 (b) の解説
+                </h3>
+                <p class="font-bold text-lg text-red-600 mb-4 bg-red-50 inline-block px-3 py-1 rounded">正解: c</p>
+                
+                <p class="text-slate-700 mb-4 leading-relaxed">
+                    「最も密な点」とは、両側から媒質が押し寄せて集まっている場所のことです。
+                </p>
+                <p class="text-slate-700 mb-4 leading-relaxed">
+                    媒質が集まる条件をグラフの形で考えると以下のようになります。
+                </p>
+                <ul class="list-disc list-inside space-y-2 mb-4 text-sm text-slate-700 ml-2">
+                    <li>左側からは右向きに変位 <span class="text-blue-500">(グラフが y > 0)</span></li>
+                    <li>右側からは左向きに変位 <span class="text-blue-500">(グラフが y < 0)</span></li>
+                </ul>
+                <div class="bg-red-50 p-3 rounded text-sm text-slate-700 border border-red-100">
+                    つまり、<strong>「グラフがx軸と交わり、かつ右下がりになっている点」</strong>が密になります。左の図の赤い領域です。点 a~g の中でこれに該当するのは <strong>c</strong> と <strong>g</strong> です。（選択肢として c が適当です）<br><br>
+                    逆に、右上がりの交点（a, e）は両側に媒質が逃げていくため「疎」になります。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- キャンバスとシミュレーションの初期化 ---
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let width, height;
+    let phase = 0;
+    let isPlaying = false;
+    let animationId;
+    let currentMode = 'normal'; // 'normal', 'a', 'b'
+    
+    // 波のパラメータ
+    let lambda;
+    let amplitude;
+    const speed = 0.04;
+    const labels = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+
+    function init() {
+        resize();
+        window.addEventListener('resize', resize);
+        
+        // ボタンイベントの設定
+        document.getElementById('btnPlay').addEventListener('click', togglePlay);
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                setMode(e.target.getAttribute('data-mode'));
+            });
+        });
+
+        // 初回描画
+        draw();
+    }
+
+    function resize() {
+        const container = document.getElementById('canvasContainer');
+        const dpr = window.devicePixelRatio || 1;
+        width = container.clientWidth;
+        height = 400; // 高さは固定
+        
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // リセット
+        ctx.scale(dpr, dpr);
+        
+        // 画面幅に対して 1.5波長(a~g) が良い感じに収まるように波長を計算
+        // 左余白を 40px とする
+        lambda = (width - 80) / 1.5; 
+        amplitude = height * 0.15; // 振幅
+        
+        if (!isPlaying) draw();
+    }
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        updatePlayButtonUI();
+        
+        if (isPlaying) {
+            // 再生開始時は「基本の動き」モードに戻す（解説図は止まっていた方が分かりやすいため）
+            if (currentMode !== 'normal') {
+                setMode('normal', false);
+            }
+            loop();
+        } else {
+            cancelAnimationFrame(animationId);
+        }
+    }
+
+    function updatePlayButtonUI() {
+        const btn = document.getElementById('btnPlay');
+        const iconPlay = document.getElementById('iconPlay');
+        const iconPause = document.getElementById('iconPause');
+        const textPlay = document.getElementById('textPlay');
+
+        if (isPlaying) {
+            btn.classList.replace('bg-indigo-600', 'bg-slate-600');
+            btn.classList.replace('hover:bg-indigo-700', 'hover:bg-slate-700');
+            iconPlay.classList.add('hidden');
+            iconPause.classList.remove('hidden');
+            textPlay.textContent = '一時停止';
+        } else {
+            btn.classList.replace('bg-slate-600', 'bg-indigo-600');
+            btn.classList.replace('hover:bg-slate-700', 'hover:bg-indigo-700');
+            iconPause.classList.add('hidden');
+            iconPlay.classList.remove('hidden');
+            textPlay.textContent = '波を動かす';
+        }
+    }
+
+    function setMode(mode, stopAnim = true) {
+        currentMode = mode;
+        
+        // タブUIの切り替え
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById('text-' + mode).classList.remove('hidden');
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('bg-blue-100', 'text-blue-800', 'border-blue-500');
+            btn.classList.add('text-slate-600', 'border-transparent');
+        });
+        
+        const activeBtn = document.querySelector(`.tab-btn[data-mode="${mode}"]`);
+        activeBtn.classList.remove('text-slate-600', 'border-transparent');
+        activeBtn.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-500');
+
+        // 解説モード時は図（t=0）の状態に固定して見やすくする
+        if (mode !== 'normal' && stopAnim) {
+            isPlaying = false;
+            phase = 0;
+            updatePlayButtonUI();
+            cancelAnimationFrame(animationId);
+        }
+        
+        if (!isPlaying) draw();
+    }
+
+    function loop() {
+        if (isPlaying) {
+            phase -= speed; // 波を右へ進める
+            draw();
+            animationId = requestAnimationFrame(loop);
+        }
+    }
+
+    // --- 描画メイン処理 ---
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        const startX = 50; // 左の余白
+        const yTrans = height * 0.35; // 横波表示の中心Y
+        const yLong = height * 0.8;   // 縦波表示の中心Y
+        const A = amplitude;
+        const k = (Math.PI * 2) / lambda;
+
+        ctx.font = '16px "Noto Sans JP", sans-serif';
+
+        // 1. 解説モード背景ハイライト
+        drawModeHighlights(startX, yTrans, yLong, A, lambda);
+
+        // 2. 軸と補助線・ラベル
+        drawAxesAndLabels(startX, yTrans, yLong, A, lambda);
+
+        // 3. 横波表示（正弦波の線）
+        drawTransverseWave(startX, yTrans, A, k);
+
+        // 4. 縦波表示（質点群）
+        drawLongitudinalWave(startX, yLong, A, k);
+
+        // 5. 解説モード追加ベクトル（矢印）
+        drawModeVectors(startX, yLong, A, k, lambda);
+    }
+
+    function drawModeHighlights(startX, yTrans, yLong, A, lambda) {
+        if (currentMode === 'a') {
+            // 変位が左 (y < 0) の領域 (c から e)
+            const x_c = startX + 2 * (lambda/4);
+            const x_e = startX + 4 * (lambda/4);
+            
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.1)'; // blue-500 薄く
+            ctx.fillRect(x_c, yTrans, x_e - x_c, yLong - yTrans + 40);
+            
+            ctx.fillStyle = '#2563eb';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('変位が左向きの領域 (y < 0)', (x_c + x_e)/2, yTrans + A + 25);
+        }
+        else if (currentMode === 'b') {
+            // 密の領域 (c, g)
+            const highlightDensity = (posIndex, text) => {
+                const x_pos = startX + posIndex * (lambda/4);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; // red 薄く
+                ctx.fillRect(x_pos - lambda/8, yTrans - A - 20, lambda/4, yLong - yTrans + A + 60);
+                
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, x_pos, yTrans - A - 25);
+            };
+            highlightDensity(2, '密'); // c
+            highlightDensity(6, '密'); // g
+
+            // 疎の領域 (a, e)
+            const highlightRarefaction = (posIndex, text) => {
+                const x_pos = startX + posIndex * (lambda/4);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; // blue 薄く
+                ctx.fillRect(x_pos - lambda/8, yTrans - A - 20, lambda/4, yLong - yTrans + A + 60);
+                
+                ctx.fillStyle = '#3b82f6';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, x_pos, yTrans - A - 25);
+            };
+            highlightRarefaction(0, '疎'); // a
+            highlightRarefaction(4, '疎'); // e
+        }
+    }
+
+    function drawAxesAndLabels(startX, yTrans, yLong, A, lambda) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#94a3b8'; // slate-400
+        ctx.lineWidth = 1;
+        
+        // 横波のX軸
+        ctx.moveTo(startX - 30, yTrans);
+        ctx.lineTo(width - 20, yTrans);
+        // 縦波の基準線
+        ctx.moveTo(startX - 30, yLong);
+        ctx.lineTo(width - 20, yLong);
+        ctx.stroke();
+
+        ctx.fillStyle = '#334155'; // slate-700
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // 軸ラベル
+        ctx.fillText('x', width - 20, yTrans + 10);
+        ctx.fillText('y', startX - 30, yTrans - A - 20);
+        ctx.fillText('O', startX - 15, yTrans + 5);
+
+        // y軸の矢印
+        drawArrowRaw(ctx, startX - 30, yTrans + 10, startX - 30, yTrans - A - 30, '#94a3b8', 1);
+        // x軸の矢印
+        drawArrowRaw(ctx, width - 30, yTrans, width - 10, yTrans, '#94a3b8', 1);
+
+        for (let i = 0; i < labels.length; i++) {
+            const x0 = startX + i * (lambda / 4);
+
+            // 縦補助線
+            ctx.beginPath();
+            ctx.strokeStyle = '#e2e8f0'; // slate-200
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(x0, yTrans - A - 10);
+            ctx.lineTo(x0, yLong + 30);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // X軸目盛り
+            ctx.beginPath();
+            ctx.strokeStyle = '#64748b';
+            ctx.moveTo(x0, yTrans - 4);
+            ctx.lineTo(x0, yTrans + 4);
+            ctx.stroke();
+
+            // ラベル
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '16px serif';
+            ctx.fillText(labels[i], x0, yTrans + 10);
+            ctx.fillText(labels[i], x0, yLong + 25);
+        }
+    }
+
+    function drawTransverseWave(startX, yTrans, A, k) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#2563eb'; // blue-600
+        ctx.lineWidth = 2.5;
+        
+        // なめらかな曲線を引く
+        for (let x = startX - 20; x < width - 30; x += 2) {
+            const localX = x - startX;
+            // 上向きを正とするためマイナス
+            const y = yTrans - A * Math.sin(k * localX + phase); 
+            if (x === startX - 20) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    function drawLongitudinalWave(startX, yLong, A, k) {
+        // 多数の質点を等間隔に配置して描画
+        const spacing = 12; // 質点の間隔
+        const numPoints = Math.floor((width - 50) / spacing);
+        
+        // 媒質の変位を強調するためのスケール（見やすさ重視）
+        const dispScale = 0.8; 
+
+        for (let i = -2; i < numPoints; i++) {
+            const x0 = startX + i * spacing;
+            const localX = x0 - startX;
+            
+            // 縦波の変位（横波のY変位をX方向の変位とする）
+            // Math.sin(...) が正なら右へ、負なら左へ。
+            const displacement = A * Math.sin(k * localX + phase);
+            const actualX = x0 + displacement * dispScale;
+
+            // a~g付近の主要な質点かどうか判定
+            let isMainLabel = false;
+            for (let j = 0; j < labels.length; j++) {
+                if (Math.abs(localX - j * (lambda / 4)) < spacing/2) {
+                    isMainLabel = true;
+                    break;
+                }
+            }
+
+            ctx.beginPath();
+            if (isMainLabel) {
+                // a~g の質点は少し大きく、色を変える
+                ctx.arc(actualX, yLong, 5.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#dc2626'; // red-600
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            } else {
+                ctx.arc(actualX, yLong, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#64748b'; // slate-500
+                ctx.fill();
+            }
+        }
+    }
+
+    function drawModeVectors(startX, yLong, A, k, lambda) {
+        const dispScale = 0.8;
+        ctx.textAlign = 'center';
+
+        if (currentMode === 'a') {
+            // 点d (左へ変位していることの明示)
+            const d_index = 3;
+            const x0_d = startX + d_index * (lambda/4);
+            const disp_d = A * Math.sin(k * (d_index * lambda/4) + phase) * dispScale;
+            const actualX_d = x0_d + disp_d;
+
+            // 元の位置から実際の変位位置への矢印
+            drawArrowRaw(ctx, x0_d, yLong - 20, actualX_d, yLong - 20, '#2563eb', 3);
+            
+            ctx.fillStyle = '#1d4ed8';
+            ctx.font = 'bold 13px sans-serif';
+            ctx.fillText('左に変位', (x0_d + actualX_d)/2, yLong - 35);
+        }
+        else if (currentMode === 'b') {
+            // 点c (密になっていることの明示)
+            const drawConvergingArrows = (centerIndex) => {
+                const x0_center = startX + centerIndex * (lambda/4);
+                
+                // 左側(b寄り)から
+                const left_index = centerIndex - 0.7;
+                const x0_left = startX + left_index * (lambda/4);
+                const disp_left = A * Math.sin(k * (left_index * lambda/4) + phase) * dispScale;
+                
+                // 右側(d寄り)から
+                const right_index = centerIndex + 0.7;
+                const x0_right = startX + right_index * (lambda/4);
+                const disp_right = A * Math.sin(k * (right_index * lambda/4) + phase) * dispScale;
+
+                // 矢印を描画
+                drawArrowRaw(ctx, x0_left + disp_left, yLong - 20, x0_center - 15, yLong - 20, '#dc2626', 2.5);
+                drawArrowRaw(ctx, x0_right + disp_right, yLong - 20, x0_center + 15, yLong - 20, '#dc2626', 2.5);
+                
+                ctx.fillStyle = '#b91c1c';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('集まる', x0_center, yLong - 35);
+            };
+
+            drawConvergingArrows(2); // 点c
+            // drawConvergingArrows(6); // 点g (画面端なので省略可だが一応)
+        }
+    }
+
+    // 矢印描画ユーティリティ
+    function drawArrowRaw(ctx, fromX, fromY, toX, toY, color, width) {
+        const headlen = 8 * width * 0.5; // 線の太さに応じて矢印の頭を調整
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const angle = Math.atan2(dy, dx);
+
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.fill();
+    }
+
+    // 起動
+    init();
+
+</script>
+</body>
+</html>
