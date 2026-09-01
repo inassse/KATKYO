@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正弦定理の計算手順</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .math-block {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+    <div class="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-xl shadow-sm border border-gray-100">
+        <h1 class="text-2xl md:text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-100 pb-4">
+            正弦定理の計算手順
+        </h1>
+
+        <div class="mb-8">
+            <p class="mb-4 text-gray-700">画像にある以下の式から、$AD$ の値を計算する手順を順を追って解説します。</p>
+            <div class="math-block bg-blue-50/50 rounded-lg text-center text-lg md:text-xl">
+                $$ \frac{AD}{\sin 30^\circ} = \frac{50}{\sin 135^\circ} $$
+            </div>
+        </div>
+
+        <div class="space-y-10">
+            <!-- Step 1 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-blue-600 text-white text-sm py-1 px-3 rounded-full mr-3">ステップ 1</span>
+                    $AD$ を求める形に変形する
+                </h2>
+                <div class="pl-0 md:pl-12">
+                    <p class="mb-4 text-gray-700">
+                        左辺を $AD$ だけにするために、両辺に $\sin 30^\circ$ を掛けます。
+                    </p>
+                    <div class="math-block bg-gray-50 rounded-lg text-center">
+                        $$ AD = \frac{50}{\sin 135^\circ} \times \sin 30^\circ $$
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-blue-600 text-white text-sm py-1 px-3 rounded-full mr-3">ステップ 2</span>
+                    三角比の値を代入する
+                </h2>
+                <div class="pl-0 md:pl-12">
+                    <p class="mb-4 text-gray-700">
+                        $\sin 30^\circ$ と $\sin 135^\circ$ を、それぞれ分数の値に置き換えます。
+                    </p>
+                    <ul class="list-disc list-inside mb-4 text-gray-700 ml-2">
+                        <li class="mb-2">$\sin 30^\circ = \frac{1}{2}$</li>
+                        <li>$\sin 135^\circ = \frac{1}{\sqrt{2}}$</li>
+                    </ul>
+                    <p class="mb-4 text-gray-700">これらを先ほどの式に代入します。</p>
+                    <div class="math-block bg-gray-50 rounded-lg text-center">
+                        $$ AD = \frac{50}{\frac{1}{\sqrt{2}}} \times \frac{1}{2} $$
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-blue-600 text-white text-sm py-1 px-3 rounded-full mr-3">ステップ 3</span>
+                    分母の分数を処理する
+                </h2>
+                <div class="pl-0 md:pl-12">
+                    <p class="mb-4 text-gray-700">
+                        式の $\frac{50}{\frac{1}{\sqrt{2}}}$ の部分は「分母が分数」になっていて計算しづらいため、割り算の形に直して計算します。<br>
+                        分数の横棒は「割り算（$\div$）」を意味します。
+                    </p>
+                    <div class="math-block bg-gray-50 rounded-lg text-center mb-4">
+                        $$ \frac{50}{\frac{1}{\sqrt{2}}} = 50 \div \frac{1}{\sqrt{2}} $$
+                    </div>
+                    <p class="mb-4 text-gray-700">
+                        分数の割り算は、分母と分子をひっくり返して掛け算（$\times$）にします。
+                    </p>
+                    <div class="math-block bg-gray-50 rounded-lg text-center">
+                        $$ 50 \times \frac{\sqrt{2}}{1} = 50\sqrt{2} $$
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4 -->
+            <section>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-blue-600 text-white text-sm py-1 px-3 rounded-full mr-3">ステップ 4</span>
+                    最終的な計算を行う
+                </h2>
+                <div class="pl-0 md:pl-12">
+                    <p class="mb-4 text-gray-700">
+                        ステップ3の結果を元の式に戻して、最後の掛け算を行います。
+                    </p>
+                    <div class="math-block bg-gray-50 rounded-lg text-center mb-4">
+                        $$ AD = 50\sqrt{2} \times \frac{1}{2} $$
+                    </div>
+                    <p class="mb-4 text-gray-700">
+                        数字の部分（$50 \times \frac{1}{2}$）を計算して $25$ になります。ルート（$\sqrt{2}$）はそのまま残ります。
+                    </p>
+                    <div class="math-block bg-blue-50/50 rounded-lg text-center text-xl md:text-2xl font-bold text-blue-900 border border-blue-100">
+                        $$ AD = 25\sqrt{2} $$
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div class="mt-12 pt-6 border-t border-gray-200 text-gray-600 text-sm">
+            <p>※このように、分母に分数が出てきたときは「割り算に直してから、ひっくり返して掛ける」とスムーズに計算できます。</p>
+        </div>
+    </div>
+</body>
+</html>
