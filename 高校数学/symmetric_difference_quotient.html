@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微分の定義で極限を解く</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Shantell+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2F6F3;
+    --paper-line:#D9E4DE;
+    --ink:#1F2E3D;
+    --ink-soft:#4B5C6B;
+    --red:#D8483E;
+    --red-soft:#F6D9D6;
+    --teal:#2E8E82;
+    --teal-soft:#D9EEEA;
+    --yellow:#FBD35E;
+    --yellow-soft:#FEF1D2;
+    --white:#FFFFFF;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(
+        var(--paper) 0px, var(--paper) 39px, var(--paper-line) 40px
+      );
+    background-color:var(--paper);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    line-height:1.9;
+    padding-left:min(10vw,72px);
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    top:0; bottom:0; left:min(10vw,72px);
+    width:2px;
+    background:var(--red-soft);
+    z-index:0;
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:56px 28px 130px 40px;
+    position:relative;
+    z-index:1;
+  }
+
+  /* ---------- page nav ---------- */
+  .page-nav{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:linear-gradient(to bottom, var(--paper) 80%, transparent);
+    padding:16px 0 10px;
+    margin:-56px auto 24px;
+    max-width:760px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .tabs{ display:flex; gap:8px; }
+  .tab-btn{
+    font-family:'Shantell Sans', cursive;
+    font-size:14px;
+    border:2px solid var(--ink);
+    background:var(--white);
+    color:var(--ink);
+    padding:7px 16px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .tab-btn.active{ background:var(--ink); color:var(--paper); }
+  .tab-btn:hover{ transform:translateY(-1px); }
+  .page-indicator{
+    font-family:'Kaisei Decol', serif;
+    font-size:14px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  .page{ display:none; }
+  .page.active{ display:block; animation:fadein .35s ease; }
+  @keyframes fadein{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding-bottom:30px; margin-bottom:8px; }
+  .hero .kicker{
+    display:inline-block;
+    font-family:'Shantell Sans', cursive;
+    font-size:15px;
+    color:var(--red);
+    background:var(--red-soft);
+    padding:5px 14px;
+    border-radius:100px;
+    transform:rotate(-1.5deg);
+    margin-bottom:18px;
+  }
+  h1{
+    font-family:'Kaisei Decol', serif;
+    font-size:clamp(26px,5vw,38px);
+    line-height:1.45;
+    margin:0 0 16px 0;
+    color:var(--ink);
+  }
+  .hero p.lead{
+    font-size:16.5px;
+    color:var(--ink-soft);
+    max-width:580px;
+    margin:0;
+  }
+  .formula-hero{
+    margin-top:26px;
+    font-family:'Kaisei Decol', serif;
+    font-size:clamp(18px,4vw,24px);
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:20px 24px;
+    display:inline-block;
+    box-shadow:5px 5px 0 var(--red-soft);
+  }
+
+  /* ---------- fraction helper ---------- */
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    vertical-align:middle;
+    text-align:center;
+    margin:0 4px;
+    font-size:0.92em;
+  }
+  .frac .num{ padding:0 4px 3px; border-bottom:2px solid currentColor; }
+  .frac .den{ padding:3px 4px 0; }
+  .lim{ font-size:0.85em; }
+  .lim sub{ display:block; font-size:0.6em; text-align:center; }
+
+  /* ---------- sections ---------- */
+  section{ margin:56px 0; }
+  h2{
+    font-family:'Kaisei Decol', serif;
+    font-size:21px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  h2 .num-badge{
+    flex:none;
+    width:36px; height:36px;
+    border-radius:50%;
+    background:var(--ink);
+    color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Shantell Sans', cursive;
+    font-size:16px;
+  }
+
+  .card{
+    background:var(--white);
+    border-radius:16px;
+    padding:26px 28px;
+    border:1px solid #E3E9E6;
+  }
+
+  .callout{
+    border-left:4px solid var(--red);
+    background:var(--red-soft);
+    border-radius:0 12px 12px 0;
+    padding:16px 20px;
+    margin:18px 0;
+    font-size:15px;
+  }
+  .callout .label{
+    font-family:'Shantell Sans', cursive;
+    color:var(--red);
+    font-weight:600;
+    display:block;
+    margin-bottom:4px;
+  }
+
+  .goal-box{
+    background:var(--teal-soft);
+    border-radius:14px;
+    padding:22px 24px;
+    display:flex;
+    gap:18px;
+    align-items:flex-start;
+  }
+  .goal-box .icon{
+    flex:none;
+    width:38px; height:38px;
+    border-radius:50%;
+    background:var(--teal);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Shantell Sans',cursive;
+    font-size:18px;
+  }
+
+  /* ---------- graph ---------- */
+  .graph-wrap{ text-align:center; margin:22px 0 6px; }
+  .graph-caption{
+    text-align:center;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  /* ---------- steps ---------- */
+  .step{ display:flex; gap:20px; margin:0 0 30px; }
+  .step:last-child{ margin-bottom:0; }
+  .step .stepnum{
+    flex:none;
+    width:42px; height:42px;
+    border-radius:12px;
+    background:var(--yellow-soft);
+    border:2px solid var(--yellow);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Kaisei Decol', serif;
+    font-weight:700;
+    font-size:18px;
+  }
+  .step .content{ flex:1; min-width:0; }
+  .step h3{
+    margin:2px 0 10px;
+    font-size:17px;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+  }
+  .eq-box{
+    background:var(--paper);
+    border:1px dashed #B9C6C0;
+    border-radius:10px;
+    padding:16px 18px;
+    margin:10px 0;
+    overflow-x:auto;
+    font-family:'Kaisei Decol', serif;
+    font-size:17px;
+  }
+  .step p{ margin:8px 0; color:var(--ink-soft); font-size:15.5px;}
+
+  .why-tag{
+    display:inline-block;
+    font-family:'Shantell Sans', cursive;
+    font-size:13px;
+    color:var(--teal);
+    background:var(--teal-soft);
+    padding:3px 10px;
+    border-radius:100px;
+    margin-bottom:8px;
+  }
+
+  /* ---------- example box (page1) ---------- */
+  .example{
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:22px 24px;
+    margin-top:18px;
+    background:var(--white);
+    position:relative;
+  }
+  .example .ex-label{
+    position:absolute;
+    top:-14px; left:20px;
+    background:var(--yellow);
+    color:var(--ink);
+    font-family:'Shantell Sans', cursive;
+    font-size:13px;
+    padding:3px 12px;
+    border-radius:100px;
+    transform:rotate(-2deg);
+  }
+
+  /* ---------- summary ---------- */
+  .summary{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:18px;
+    padding:34px 30px;
+  }
+  .summary h2{ color:var(--yellow); }
+  .summary h2 .num-badge{ background:var(--yellow); color:var(--ink); }
+  .summary .eq-box{
+    background:rgba(255,255,255,0.08);
+    border:1px dashed rgba(255,255,255,0.3);
+    color:#fff;
+  }
+  .summary p{ color:#C7D2CB; font-size:15px; }
+
+  .final-answer{
+    margin-top:18px;
+    font-family:'Kaisei Decol', serif;
+    font-size:22px;
+    background:var(--yellow);
+    color:var(--ink);
+    display:inline-block;
+    padding:14px 24px;
+    border-radius:10px;
+    transform:rotate(-1deg);
+  }
+
+  .next-page-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:36px;
+    font-family:'Shantell Sans', cursive;
+    font-size:15px;
+    border:2px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    padding:12px 22px;
+    border-radius:100px;
+    cursor:pointer;
+  }
+  .next-page-btn:hover{ background:var(--red); border-color:var(--red); }
+
+  footer{
+    margin-top:60px;
+    font-size:13px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--paper-line);
+    padding-top:18px;
+  }
+
+  @media (max-width:520px){
+    body{ padding-left:28px; }
+    body::before{ left:28px; }
+    .wrap{ padding:40px 18px 100px 22px; }
+    .step{ gap:14px; }
+    .page-nav{ flex-direction:column; align-items:flex-start; gap:10px; margin-top:-40px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-nav">
+    <div class="tabs">
+      <button class="tab-btn active" data-page="1" onclick="goPage(1)">1. 基本のやり方</button>
+      <button class="tab-btn" data-page="2" onclick="goPage(2)">2. 今回の問題</button>
+    </div>
+    <span class="page-indicator" id="page-indicator">ページ 1 / 2</span>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 1：微分の定義に従って解く基本パターン -->
+  <!-- ============================================================ -->
+  <div class="page active" id="page-1">
+
+    <div class="hero">
+      <span class="kicker">基本パターン</span>
+      <h1>「微分の定義」を使って<br>極限を解く、いちばん基本のやり方</h1>
+      <p class="lead">
+        急に sin や複雑な式が出てくる極限の問題も、実は「微分の定義」を知っているだけで
+        一瞬で解けることがあります。まずはこの基本パターンをしっかり押さえましょう。
+      </p>
+    </div>
+
+    <!-- 定義そのもの -->
+    <section>
+      <h2><span class="num-badge">1</span>微分の定義を思い出す</h2>
+      <div class="card">
+        <p style="margin-top:0;color:var(--ink-soft);font-size:15.5px;">
+          「関数 f(x) の x=a における微分係数 f'(a)」は、こう定義されています。
+        </p>
+        <div class="formula-hero" style="display:block;text-align:center;">
+          f'(a) &nbsp;=&nbsp;
+          <span class="lim">lim<sub>h→0</sub></span>
+          <span class="frac"><span class="num">f(a+h) − f(a)</span><span class="den">h</span></span>
+        </div>
+        <p style="margin-top:20px;">
+          この式が表しているのは「a という点のすぐ近くで、f(x) がどれくらいの割合で
+          変化しているか」＝<strong>a での接線の傾き</strong>です。
+        </p>
+        <div class="callout">
+          <span class="label">イメージでつかむ</span>
+          a という点から、ほんの少し（h だけ）先に進んだときの「変化の量 ÷ 進んだ距離」を
+          計算しています。h をどんどん 0 に近づけていくと、その割合は
+          ある1つの値（a での傾き）に落ち着きます。それが f'(a) です。
+        </div>
+      </div>
+    </section>
+
+    <!-- 見抜き方 -->
+    <section>
+      <h2><span class="num-badge">2</span>問題文の中に「定義の形」を見つける</h2>
+      <div class="card">
+        <p style="margin-top:0;">
+          入試や問題集でよく出るのは、次のような形の極限です。ぱっと見は
+          何をすればいいか分からなくても、<strong>「これは微分の定義の形をしている」</strong>
+          と気づけば、計算しなくても答えが分かってしまいます。
+        </p>
+
+        <div class="step">
+          <div class="stepnum">①</div>
+          <div class="content">
+            <h3>分子が「同じ関数」の差になっている</h3>
+            <p>
+              分子をよく見て、<strong>同じ関数 f</strong> が、<strong>少しだけ違う場所</strong>
+              （a+h と a など）で使われていないかを確認します。
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">②</div>
+          <div class="content">
+            <h3>分母が「その場所の差」になっている</h3>
+            <p>
+              分母が、分子で使った2つの場所の<strong>差</strong>（今回なら h）に
+              なっているかを確認します。分子と分母がセットで対応していることが大事です。
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">③</div>
+          <div class="content">
+            <h3>f(x) と a を特定して、公式に当てはめる</h3>
+            <p>
+              「どんな関数 f(x) を使っているか」「どの点 a で見ているか」の2つさえ
+              分かれば、あとは f'(x) を計算して a を代入するだけです。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- シンプルな例1 -->
+    <section>
+      <h2><span class="num-badge">3</span>いちばんシンプルな例で練習</h2>
+      <div class="example">
+        <span class="ex-label">練習1</span>
+        <p style="margin-top:6px;">次の極限を求めよ。</p>
+        <div class="eq-box">
+          <span class="lim">lim<sub>h→0</sub></span>
+          <span class="frac"><span class="num">sin(a+h) − sin a</span><span class="den">h</span></span>
+        </div>
+        <p><strong>見抜き方：</strong>分子は「sin という同じ関数」が a+h と a で使われている。
+        分母はその差 h。→ これはそのまま微分の定義の形です。</p>
+        <div class="eq-box">
+          f(x) = sin x とみると、この式は f'(a) そのもの。<br>
+          f'(x) = cos x なので、f'(a) = cos a
+        </div>
+        <p style="margin-bottom:0;"><strong>答え：cos a</strong>（計算は一切不要で、公式に当てはめるだけ）</p>
+      </div>
+    </section>
+
+    <!-- シンプルな例2（数値） -->
+    <section>
+      <div class="example">
+        <span class="ex-label">練習2（数値で確認）</span>
+        <p style="margin-top:6px;">次の極限を求めよ。</p>
+        <div class="eq-box">
+          <span class="lim">lim<sub>x→2</sub></span>
+          <span class="frac"><span class="num">x³ − 8</span><span class="den">x − 2</span></span>
+        </div>
+        <p>
+          <strong>見抜き方：</strong>形が少し違って見えますが、8 = 2³ と気づけば、
+          分子は「x³ という関数」が x と 2 で使われている差になっています。
+        </p>
+        <div class="eq-box">
+          <span class="lim">lim<sub>x→2</sub></span>
+          <span class="frac"><span class="num">x³ − 2³</span><span class="den">x − 2</span></span>
+          &nbsp;=&nbsp; f'(2)&nbsp;&nbsp;（f(x) = x³ とみたとき）
+        </div>
+        <div class="eq-box">
+          f'(x) = 3x² なので、f'(2) = 3×2² = 12
+        </div>
+        <p style="margin-bottom:0;"><strong>答え：12</strong></p>
+      </div>
+    </section>
+
+    <div class="callout">
+      <span class="label">ここまでのまとめ</span>
+      「分子が同じ関数の差」「分母がその場所の差」になっている極限を見たら、
+      とにかく<strong>微分の定義を疑ってみる</strong>のが第一歩です。
+      次のページでは、この基本パターンだけでは形が少し違う「今回の問題」を扱います。
+    </div>
+
+    <button class="next-page-btn" onclick="goPage(2)">次のページ：今回の問題を見る →</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 2：今回の問題（対称差分商）の解説 -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-2">
+
+    <div class="hero">
+      <span class="kicker">対称差分商のからくり</span>
+      <h1>今回の問題：<br>なぜ真ん中で分子を<br>「足して引く」だけで証明できるの？</h1>
+      <p class="lead">
+        今回の問題は、1ページ目の基本パターンとは少し形が違います。
+        分子が f(a+h) と f(a−h) の差で、真ん中の f(a) がありません。
+        この差を埋めるのが、これから見ていくテクニックです。
+      </p>
+      <div class="formula-hero">
+        <span class="lim">lim<sub>h→0</sub></span>
+        <span class="frac"><span class="num">f(a+h) − f(a−h)</span><span class="den">2h</span></span>
+        &nbsp;=&nbsp; f'(a)
+      </div>
+    </div>
+
+    <!-- ゴール -->
+    <section>
+      <h2><span class="num-badge">0</span>まず、何を証明したいのか</h2>
+      <div class="goal-box">
+        <div class="icon">🎯</div>
+        <div>
+          <strong>「a を中心に、左右対称な2点を結んだ直線の傾き」は、
+          h を 0 に近づけると「a における接線の傾き＝f'(a)」に一致する。</strong>
+          <p style="margin:10px 0 0;color:var(--ink-soft);font-size:15px;">
+            これがこの証明のゴールです。まずは図でイメージをつかんでから、式で確かめていきます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- グラフ -->
+    <section>
+      <h2><span class="num-badge">1</span>図でイメージをつかむ</h2>
+      <div class="card">
+        <div class="graph-wrap">
+          <svg viewBox="0 0 640 300" width="100%" style="max-width:560px">
+            <line x1="30" y1="250" x2="610" y2="250" stroke="#B9C6C0" stroke-width="1.5"/>
+            <line x1="60" y1="280" x2="60" y2="30" stroke="#B9C6C0" stroke-width="1.5"/>
+
+            <path d="M 70 240 C 180 60, 300 60, 320 150 C 340 240, 460 260, 590 60"
+                  fill="none" stroke="#8FA69C" stroke-width="2.5"/>
+
+            <line x1="230" y1="90" x2="410" y2="205" stroke="var(--red)" stroke-width="2" stroke-dasharray="6 5" opacity="0.35"/>
+            <circle cx="230" cy="90" r="5" fill="var(--red)" opacity="0.35"/>
+            <circle cx="410" cy="205" r="5" fill="var(--red)" opacity="0.35"/>
+
+            <line x1="280" y1="112" x2="360" y2="172" stroke="var(--red)" stroke-width="2.5"/>
+            <circle cx="280" cy="112" r="5" fill="var(--red)"/>
+            <circle cx="360" cy="172" r="5" fill="var(--red)"/>
+
+            <line x1="255" y1="90" x2="385" y2="195" stroke="var(--teal)" stroke-width="2.5"/>
+
+            <circle cx="320" cy="142" r="6" fill="var(--ink)"/>
+            <text x="320" y="270" text-anchor="middle" font-family="Kaisei Decol, serif" font-size="17" fill="var(--ink)">a</text>
+            <text x="230" y="278" text-anchor="middle" font-family="Kaisei Decol, serif" font-size="15" fill="var(--ink-soft)">a−h（h大）</text>
+            <text x="410" y="278" text-anchor="middle" font-family="Kaisei Decol, serif" font-size="15" fill="var(--ink-soft)">a+h（h大）</text>
+            <text x="285" y="252" text-anchor="middle" font-family="Kaisei Decol, serif" font-size="13" fill="var(--red)">a−h</text>
+            <text x="358" y="200" text-anchor="middle" font-family="Kaisei Decol, serif" font-size="13" fill="var(--red)">a+h</text>
+
+            <text x="470" y="80" font-family="Shantell Sans, cursive" font-size="14" fill="var(--teal)">a での接線</text>
+            <text x="200" y="60" font-family="Shantell Sans, cursive" font-size="14" fill="var(--red)">2点を結ぶ直線（薄い＝hが大きいとき）</text>
+          </svg>
+        </div>
+        <p class="graph-caption">
+          h を小さくするほど、赤い直線（2点を結ぶ線）はどんどん緑の接線に近づいていきます。<br>
+          「これを式でちゃんと確かめよう」というのが、以下の証明の内容です。
+        </p>
+      </div>
+    </section>
+
+    <!-- STEPS -->
+    <section>
+      <h2><span class="num-badge">2</span>証明を1歩ずつ</h2>
+      <div class="card">
+
+        <div class="step">
+          <div class="stepnum">1</div>
+          <div class="content">
+            <h3>分子に「f(a)」をこっそり足して、引く</h3>
+            <span class="why-tag">なぜ？→ 見た目を変えたいだけ、値はゼロなので変化なし</span>
+            <p>
+              まず分子 f(a+h) − f(a−h) だけに注目します。ここに
+              <strong>+f(a) と −f(a)</strong> を1つずつ挿入します。
+              足して引けば結局ゼロなので、式の値は何も変わりません。
+            </p>
+            <div class="eq-box">
+              f(a+h) − f(a−h)<br>
+              &nbsp;&nbsp;= [ f(a+h) − f(a) ] + [ f(a) − f(a−h) ]
+            </div>
+            <p>
+              この形にすると、2つのカッコの中身が、どちらも
+              1ページ目で見た「微分の定義」の分子（ある点との差）にそっくりの形になります。
+              これがこのテクニックのねらいです。
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">2</div>
+          <div class="content">
+            <h3>式全体を2つの塊に分ける</h3>
+            <span class="why-tag">なぜ？→ それぞれを別々に、知っている極限の形に持ち込むため</span>
+            <p>元の式に STEP1 の結果を当てはめ、<span class="frac"><span class="num">1</span><span class="den">2h</span></span> を
+            2つの項に配ります。</p>
+            <div class="eq-box">
+              <span class="frac"><span class="num">f(a+h)−f(a−h)</span><span class="den">2h</span></span>
+              &nbsp;=&nbsp;
+              <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+              &nbsp;×&nbsp;
+              [ <span class="frac"><span class="num">f(a+h)−f(a)</span><span class="den">h</span></span>
+              &nbsp;+&nbsp;
+              <span class="frac"><span class="num">f(a)−f(a−h)</span><span class="den">h</span></span> ]
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">3</div>
+          <div class="content">
+            <h3>1つ目の塊：そのまま微分の定義</h3>
+            <span class="why-tag">なぜ？→ 1ページ目の公式とまったく同じ形</span>
+            <p>
+              1つ目の塊 <span class="frac"><span class="num">f(a+h)−f(a)</span><span class="den">h</span></span>
+              は、1ページ目で確認した定義の式とまったく同じ形です。だから h→0 の極限を取ると、
+              そのまま <strong>f'(a)</strong> になります。
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">4</div>
+          <div class="content">
+            <h3>2つ目の塊：h を −h に置きかえて考える</h3>
+            <span class="why-tag">なぜ？→ 形は違って見えるが、実は同じ極限に行きつくことを確認する</span>
+            <p>
+              2つ目の塊 <span class="frac"><span class="num">f(a)−f(a−h)</span><span class="den">h</span></span>
+              は、パッと見は定義と順番が逆で戸惑うかもしれません。ここで一つ工夫をします。
+            </p>
+            <p>
+              微分の定義の式の「h」という文字を、そのまま「−h」に置きかえてみます
+              （h→0 なら −h→0 でもあるので、極限としては全く同じ意味です）。
+            </p>
+            <div class="eq-box">
+              f'(a) = <span class="lim">lim<sub>h→0</sub></span>
+              <span class="frac"><span class="num">f(a+(−h)) − f(a)</span><span class="den">−h</span></span>
+              &nbsp;=&nbsp;
+              <span class="lim">lim<sub>h→0</sub></span>
+              <span class="frac"><span class="num">f(a−h) − f(a)</span><span class="den">−h</span></span>
+            </div>
+            <p>分子・分母の符号をそろえて両方マイナスにひっくり返すと…</p>
+            <div class="eq-box">
+              f'(a) = <span class="lim">lim<sub>h→0</sub></span>
+              <span class="frac"><span class="num">f(a) − f(a−h)</span><span class="den">h</span></span>
+            </div>
+            <div class="callout">
+              <span class="label">直感的なイメージ</span>
+              「a から h だけ進んだときの変化率」も「a から h だけ戻ったときの変化率」も、
+              h をどんどん 0 に近づければ、どちらも同じ 1 つの値（a のところの傾き）に近づいていきます。
+              右から見ても左から見ても、行きつく先は同じということです。
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="stepnum">5</div>
+          <div class="content">
+            <h3>2つの塊を合体させる</h3>
+            <span class="why-tag">なぜ？→ STEP3とSTEP4の結果を、STEP2の式に戻すだけ</span>
+            <p>STEP3 と STEP4 で、どちらの塊も極限を取ると f'(a) になることが分かりました。これを STEP2 の式に戻します。</p>
+            <div class="eq-box">
+              <span class="lim">lim<sub>h→0</sub></span>
+              <span class="frac"><span class="num">f(a+h)−f(a−h)</span><span class="den">2h</span></span>
+              &nbsp;=&nbsp;
+              <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+              × [ f'(a) + f'(a) ]
+              &nbsp;=&nbsp;
+              <span class="frac"><span class="num">1</span><span class="den">2</span></span>
+              × 2f'(a)
+              &nbsp;=&nbsp;
+              <strong>f'(a)</strong>
+            </div>
+            <p>これで証明が完成しました。</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 今回の問題への適用 -->
+    <section>
+      <h2><span class="num-badge">3</span>今回の問題に当てはめる</h2>
+      <div class="card">
+        <p style="color:var(--ink-soft);font-size:15.5px;margin-top:0;">
+          今回は f(x) = sin x のケースでした。sin x を微分すると cos x になることは
+          知っている公式なので、そのまま代入します。
+        </p>
+        <div class="eq-box">
+          f(x) = sin x &nbsp;→&nbsp; f'(x) = cos x &nbsp;→&nbsp; f'(a) = cos a
+        </div>
+        <div class="eq-box">
+          <span class="lim">lim<sub>h→0</sub></span>
+          <span class="frac"><span class="num">sin(a+h) − sin(a−h)</span><span class="den">2h</span></span>
+          &nbsp;=&nbsp; <strong>cos a</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- まとめ -->
+    <section class="summary">
+      <h2><span class="num-badge">✓</span>結論として</h2>
+      <p>
+        「分子に f(a) を足して引く」という一見不思議な操作は、
+        式を2つの「微分の定義の形」（1ページ目で学んだ基本形）に分解するための準備でした。
+      </p>
+      <p>
+        2つ目の塊は形が違って見えても、h を −h に置きかえることで、
+        1つ目と同じ f'(a) に収束することが確認できます。
+      </p>
+      <div class="final-answer">
+        対称差分商 → f'(a) に収束する
+      </div>
+    </section>
+
+    <footer>
+      塾講師アルバイト用資料 ／ 微分の定義（対称差分商）の解説
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  function goPage(n){
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + n).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.tab-btn[data-page="' + n + '"]').classList.add('active');
+    document.getElementById('page-indicator').textContent = 'ページ ' + n + ' / 2';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
